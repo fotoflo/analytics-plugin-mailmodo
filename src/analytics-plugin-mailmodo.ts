@@ -1,6 +1,7 @@
 /**
  * Mailmodo Events plugin for getanaltyics.io
- * by Alex Miller (fotoflo@gmail.com)
+ * by Alex Miller https://github.com/fotoflo
+ *
  * @link https://getanalytics.io/plugins/mailmodo/
  * @param {object} pluginConfig - Plugin settings
  * @param {string} pluginConfig.token - The mailmodo api key
@@ -33,6 +34,12 @@ function mailmodoPlugin(pluginConfig: PluginConfig = { token: null }) {
       console.error("User email is required for Mailmodo events");
       return;
     }
+
+    properties = {
+      ...properties,
+      ...userTraits,
+    };
+
     return callMailmodoApi({ event, email: userTraits.email, properties });
   };
 
