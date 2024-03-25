@@ -13,9 +13,7 @@
  * })
  */
 
-interface PluginConfig {
-  token: string | null;
-}
+import type { PluginConfig, UserTraits } from "../index.d.ts";
 
 function mailmodoPlugin(pluginConfig: PluginConfig = { token: null }) {
   if (!pluginConfig.token) {
@@ -24,11 +22,6 @@ function mailmodoPlugin(pluginConfig: PluginConfig = { token: null }) {
     );
     return;
   }
-
-  type UserTraits = {
-    email: string | null;
-    [key: string]: string | null;
-  };
 
   let userTraits = {
     userId: null,

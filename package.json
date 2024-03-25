@@ -10,6 +10,7 @@
   "keywords": [],
   "author": "Alex Miller <alex@fastmonitor.io>",
   "license": "ISC",
+  "types": "index.d.ts",
   "devDependencies": {
     "@types/jest": "^29.5.12",
     "jest": "^29.7.0",
