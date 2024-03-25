@@ -1,6 +1,6 @@
 {
   "name": "analytics-plugin-mailmodo",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Mailmodo plugin for https://getanalytics.io/",
   "main": "/src/analtyics-plugin-mailmodo.ts",
   "types": "index.d.ts",
