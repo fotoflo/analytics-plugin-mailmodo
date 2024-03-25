@@ -18,6 +18,13 @@ interface PluginConfig {
 }
 
 function mailmodoPlugin(pluginConfig: PluginConfig = { token: null }) {
+  if (!pluginConfig.token) {
+    console.error(
+      "Mailmodo API token is required for all events, please add it to the pluginConfig"
+    );
+    return;
+  }
+
   type UserTraits = {
     email: string | null;
     [key: string]: string | null;
@@ -84,13 +91,6 @@ function mailmodoPlugin(pluginConfig: PluginConfig = { token: null }) {
     email: string;
     properties: object;
   }) {
-    if (!pluginConfig.token) {
-      console.error(
-        "Mailmodo API token is required for all events, please add it to the pluginConfig"
-      );
-      return;
-    }
-
     // https://www.mailmodo.com/developers/93cba3fa7f1ea-add-event
     try {
       const response = await fetch(

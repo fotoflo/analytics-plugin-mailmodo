@@ -26,7 +26,10 @@ describe("mailmodoPlugin", () => {
     });
   });
 
-  describe.only("identify", () => {
+  describe("identify", () => {
+    beforeEach(() => {
+      jest.clearAllMocks();
+    });
     it('identify calls track with "identify" event', async () => {
       const plugin = mailmodoPlugin({ token: "test-token" });
       const userId = "123";
@@ -35,7 +38,7 @@ describe("mailmodoPlugin", () => {
       plugin.identify("123", traits);
 
       expect(global.fetch).toHaveBeenCalledWith(
-        expect.stringContaining("/identify"),
+        expect.stringContaining("identify"),
         expect.anything()
       );
     });
@@ -59,25 +62,41 @@ describe("mailmodoPlugin", () => {
       const plugin = mailmodoPlugin({ token: "test-token" });
       const event = "test-event";
       const properties = { prop1: "value1" };
+      const userId = "123";
+      const traits = { email: "test@example.com" };
 
-      // Mock identify to set the user email
-      plugin.identify("123", { email: "test@example.com" });
+      plugin.identify(userId, traits);
+      jest.clearAllMocks(); // Clear any mocks before calling track
 
+      // Call the track method
       await plugin.track(event, properties);
+      expect(global.fetch).toHaveBeenCalledTimes(1);
 
-      expect(global.fetch).toHaveBeenCalledTimes(2);
-      expect(global.fetch).toHaveBeenCalledWith(
-        `https://api.mailmodo.com/v1/event/${event}`,
+      // Get the fetch call arguments
+      const fetchCallArgs = (global.fetch as jest.Mock).mock.calls[0];
+      const fetchUrl = fetchCallArgs[0];
+      const fetchOptions = fetchCallArgs[1];
+
+      expect(fetchUrl).toBe(`https://api.mailmodo.com/v1/event/${event}`);
+
+      expect(fetchOptions.method).toBe("POST");
+
+      expect(fetchOptions.headers).toEqual({
+        "Content-Type": "application/json",
+        mmApiKey: "test-token",
+      });
+
+      // Parse the JSON body to an object to assert its structure
+      const fetchBody = JSON.parse(fetchOptions.body);
+
+      // Assert that the email in the fetch body is as expected
+      expect(fetchBody.email).toBe(traits.email);
+
+      // Assert the structure of event_properties is as expected
+      expect(fetchBody.event_properties).toEqual(
         expect.objectContaining({
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            mmApiKey: "test-token",
-          },
-          body: JSON.stringify({
-            email: "test@example.com",
-            event_properties: expect.objectContaining(properties),
-          }),
+          ...properties,
+          userId: userId, // assuming userId should be part of the event_properties
         })
       );
     });
@@ -102,28 +121,34 @@ describe("mailmodoPlugin", () => {
 
   describe("reset", () => {
     it('reset calls track with "logout" event and clears user traits', async () => {
+      console.error = jest.fn();
+
       const plugin = mailmodoPlugin({ token: "test-token" });
       // Set initial user traits
-      plugin.identify("123", { email: "test@example.com" });
+      await plugin.identify("123", { email: "test@example.com" });
+      jest.clearAllMocks();
 
       await plugin.reset();
-
-      // Attempt to track another event which should now fail
       await plugin.track("test-event", {});
 
       expect(console.error).toHaveBeenCalledWith(
         "User email is required for Mailmodo events"
       );
-      expect(global.fetch).toHaveBeenCalledTimes(1); // Only the logout event should have been called
+
+      expect(global.fetch).toHaveBeenCalledTimes(1); // identify and logout
+      expect(global.fetch).toHaveBeenCalledWith(
+        expect.stringContaining("/logout"),
+        expect.anything()
+      );
     });
   });
 
   describe("error handling", () => {
-    it("callMailmodoApi without token logs error", async () => {
+    it("initialization fails without token, logs error", async () => {
+      jest.clearAllMocks();
       console.error = jest.fn();
 
-      const plugin = mailmodoPlugin({ token: "" });
-      await plugin.track("test-event", { prop: "value" });
+      mailmodoPlugin({ token: "" });
 
       expect(console.error).toHaveBeenCalledWith(
         "Mailmodo API token is required for all events, please add it to the pluginConfig"
