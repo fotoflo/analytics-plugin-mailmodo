@@ -19,7 +19,6 @@ interface PluginConfig {
 
 function mailmodoPlugin(pluginConfig: PluginConfig = { token: null }) {
   type UserTraits = {
-    userId: string | null;
     email: string | null;
     [key: string]: string | null;
   };
@@ -43,13 +42,7 @@ function mailmodoPlugin(pluginConfig: PluginConfig = { token: null }) {
     return callMailmodoApi({ event, email: userTraits.email, properties });
   };
 
-  const identify = ({
-    userId,
-    traits,
-  }: {
-    userId: string;
-    traits: UserTraits;
-  }) => {
+  const identify = (userId: string, traits: UserTraits) => {
     if (!userId) {
       console.error("User id is required for all events");
       return;
@@ -74,12 +67,12 @@ function mailmodoPlugin(pluginConfig: PluginConfig = { token: null }) {
   };
 
   const reset = () => {
+    const result = track("logout", userTraits);
     userTraits = {
       userId: null,
       email: null,
     };
-
-    return track("logout", userTraits);
+    return result;
   };
 
   async function callMailmodoApi({
