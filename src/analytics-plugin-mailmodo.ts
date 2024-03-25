@@ -85,6 +85,12 @@ function mailmodoPlugin(pluginConfig: PluginConfig = { token: null }) {
     properties: object;
   }) {
     // https://www.mailmodo.com/developers/93cba3fa7f1ea-add-event
+    if (!pluginConfig.token) {
+      console.error(
+        "Mailmodo API token is required for all events, please add it to the pluginConfig"
+      );
+      return;
+    }
     try {
       const response = await fetch(
         `https://api.mailmodo.com/v1/event/${event}`,
