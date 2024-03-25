@@ -1,19 +1,27 @@
 {
   "name": "analytics-plugin-mailmodo",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "Mailmodo plugin for https://getanalytics.io/",
+  "main": "/src/analtyics-plugin-mailmodo.ts",
   "scripts": {
     "jest": "jest --watch",
     "debug": "node --inspect-brk node_modules/.bin/jest --runInBand"
   },
   "keywords": [],
-  "author": "",
+  "author": "Alex Miller <alex@fastmonitor.io>",
   "license": "ISC",
   "devDependencies": {
     "@types/jest": "^29.5.12",
     "jest": "^29.7.0",
     "ts-jest": "^29.1.2",
     "typescript": "^5.4.3"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/fotoflo/analytics-plugin-mailmodo.git"
+  },
+  "bugs": {
+    "url": "https://github.com/fotoflo/analytics-plugin-mailmodo/issues"
+  },
+  "homepage": "https://github.com/fotoflo/analytics-plugin-mailmodo#readme"
 }
